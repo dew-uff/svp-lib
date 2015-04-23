@@ -1,55 +1,67 @@
 package uff.dew.svp.db;
 
-import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQResultSequence;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import junit.framework.TestCase;
+import javax.xml.xquery.XQException;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import uff.dew.svp.SvpTestQueries;
 
-public class BaseXDatabaseTest extends TestCase {
+public class BaseXDatabaseTest {
     
     private static final String TEMP_COLLECTION = "temp";
-    private static final String XML_FILES_DIR = "/home/gabriel/repo/xquery-mapreduce/svp-lib/test/partials/regular";
-    private static final String XML_SINGLE_FILE = "/home/gabriel/repo/xquery-mapreduce/svp-lib/test/partials/aggregation/partial_sd_aggregation_000.xml";
+    private static final String XML_FILES_MD_DIR = System.getProperty("user.dir") + "/test/xmark/md";
+    private static final String XML_SINGLE_FILE = System.getProperty("user.dir") + "/test/xmark/sd/auction.xml";
     
-    @Override
-    protected void setUp() throws Exception {
-        DatabaseFactory.produceSingletonDatabaseObject("localhost", 1984, "admin", "admin", "expdb", "BASEX");
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        DatabaseFactory.produceSingletonDatabaseObject("localhost", 1984, "admin", "admin", "testsvp", "BASEX");
+        // create test database
+        // in basex, the collections are created as databases
+        Database database = DatabaseFactory.getSingletonDatabaseObject();
+        database.deleteCollection("testsvp");
+        database.createCollection("testsvp");
+        database.loadFileInCollection("testsvp", XML_SINGLE_FILE);
     }
     
-    @Override
-    protected void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         database.deleteCollection(TEMP_COLLECTION);
+        database.deleteCollection("testsvp");
     }
 
+    @Test
     public void testExecuteQuery() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         
         try {
-            XQResultSequence res = database.executeQuery(SvpTestQueries.query_sd_regular);
-            while (res.next()) {
-                System.out.println(res.getItemAsString(null));
-                System.out.println("\r\n");
-            }
+            // TODO implement a way to check this
+            database.executeQuery(SvpTestQueries.query_sd_regular);
         } catch (XQException e) {
             e.printStackTrace();
             fail("wrong!");
         }
     }
 
+    @Test
     public void testExecuteQueryAsString() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
 
         try {
-            System.out.println(database.executeQuery(SvpTestQueries.query_sd_regular));
-            System.out.println("\r\n");
+            // TODO implement a way to check this
+            database.executeQueryAsString(SvpTestQueries.query_sd_regular);
         } catch (XQException e) {
             e.printStackTrace();
             fail("wrong!");
         }
     }
         
+    @Test
     public void testCreateCollection() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         try {
@@ -60,6 +72,7 @@ public class BaseXDatabaseTest extends TestCase {
         }
     }
     
+    @Test
     public void testDeleteCollection() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         try {
@@ -70,47 +83,50 @@ public class BaseXDatabaseTest extends TestCase {
         }
     }
 
-
-
+    @Test
     public void testCreateCollectionWithContent() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         try {
-            database.createCollectionWithContent(TEMP_COLLECTION,XML_FILES_DIR);
+            database.createCollectionWithContent(TEMP_COLLECTION,XML_FILES_MD_DIR);
         } catch (XQException e) {
             e.printStackTrace();
             fail("wrong");
         }
     }
 
+    @Test
     public void testGetCardinality() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         int cardinality = database.getCardinality("/site/people/person", "auction.xml", null);
-        assertEquals(25500, cardinality);
+        assertEquals(255, cardinality);
     }
 
-    // TODO solve this
-//    public void testLoadFileInCollection() {
-//        Database database = DatabaseFactory.getSingletonDatabaseObject();
-//        try {
-//            database.loadFileInCollection(TEMP_COLLECTION,XML_SINGLE_FILE);
-//        } catch (XQException e) {
-//            e.printStackTrace();
-//            fail("wrong");
-//        }
-//    }
+    @Test
+    public void testLoadFileInCollection() {
+        Database database = DatabaseFactory.getSingletonDatabaseObject();
+        try {
+            database.createCollection(TEMP_COLLECTION);
+            database.loadFileInCollection(TEMP_COLLECTION,XML_SINGLE_FILE);
+        } catch (XQException e) {
+            e.printStackTrace();
+            fail("wrong");
+        }
+    }
 
+    @Test
     public void testGetParentElement() {
         Database database = DatabaseFactory.getSingletonDatabaseObject();
         String[] parent = database.getParentElement("person", null, "auction.xml");
         assertEquals("people", parent[0]);
-        parent = database.getParentElement("results", TEMP_COLLECTION, "partial_sd_regular_000.xml");
-        assertEquals("partialResult",parent[0]);
         parent = database.getParentElement("site", null, "auction.xml");
         assertEquals("",parent[0]);
     }
 
+    @Test
     public void testGetDocumentsNamesForCollection() {
-        fail("Not yet implemented");
+        Database database = DatabaseFactory.getSingletonDatabaseObject();
+        String[] documents = database.getDocumentsNamesForCollection("testsvp");
+        assertEquals("auction.xml",documents[0]);
     }
 }
 

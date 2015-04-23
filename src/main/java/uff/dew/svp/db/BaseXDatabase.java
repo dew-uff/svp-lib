@@ -7,7 +7,9 @@ import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQResultSequence;
 
 import net.xqj.basex.BaseXXQDataSource;
@@ -124,7 +126,13 @@ public class BaseXDatabase extends XQJBaseDatabase {
         String[] parts = filePath.split("/");
         String docName = parts[parts.length-1];
         
-        baseExecuteCommand("OPEN " + getDatabaseName() + " ; ADD TO " + docName + " " + filePath);
+        // had to lower the level here since the load file in basex asks for an opened database
+        XQConnection conn = dataSource.getConnection();
+        XQExpression exp = conn.createExpression();
+        exp.executeCommand("OPEN " + collectionName);
+        exp.executeCommand("ADD TO " + docName + " " + filePath);
+        exp.close();
+        conn.close();
     }
 
     @Override
@@ -216,7 +224,7 @@ public class BaseXDatabase extends XQJBaseDatabase {
             }
         } 
         catch(XQException e) {
-            LOG.error("Something wrong while get parent element!!");
+            LOG.error("Something wrong while get names for documents!!");
         }
 
         return result;
