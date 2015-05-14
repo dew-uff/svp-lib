@@ -25,10 +25,14 @@ public class TempCollectionStrategy implements CompositionStrategy {
     private OutputStream output = null;
     private File tempDir;
     private int count = 0;
+    private SubQuery subQueryObj;
+    private Query queryObj;
     
-    public TempCollectionStrategy(Database db, OutputStream output) {
+    public TempCollectionStrategy(Database db, Query q, SubQuery sbq, OutputStream output) {
         this.db = db;
         this.output = output;
+        this.subQueryObj = sbq;
+        this.queryObj = q;
     }
     
     @Override
@@ -57,7 +61,7 @@ public class TempCollectionStrategy implements CompositionStrategy {
             throw new IOException("Temporary Collection already exists", e);
         }
 
-        SubQuery sbq = SubQuery.getUniqueInstance(true);
+        SubQuery sbq = subQueryObj;
 
         // construct the query to get the result from the temp collection
         String finalQuery = constructFinalQuery();
@@ -102,8 +106,8 @@ public class TempCollectionStrategy implements CompositionStrategy {
      */
     private String constructFinalQuery() throws IOException {
         
-        Query q = Query.getUniqueInstance(true);
-        SubQuery sbq = SubQuery.getUniqueInstance(true);
+        Query q = queryObj;
+        SubQuery sbq = subQueryObj;
 
         String finalResultXquery = "";
         String orderByClause = "";

@@ -263,8 +263,6 @@ public class Query {
 
 	protected String operatorComparision = "";	
 
-	protected static Query _inputQuery;	
-	
 	protected Hashtable<String,String> forClauses = new Hashtable<String,String>();
 	protected Hashtable<String,String> letClauses = new Hashtable<String,String>();
 	protected Hashtable<String,String> selectionPredicates = new Hashtable<String,String>();
@@ -289,6 +287,7 @@ public class Query {
 		return queryExprType;
 	}
 	
+    protected static Query _inputQuery;
 	public static Query getUniqueInstance(boolean flag) {		
 		if (!flag || _inputQuery == null)
 			_inputQuery = new Query();

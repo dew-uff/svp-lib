@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 
 import uff.dew.svp.fragmentacaoVirtualSimples.Query;
 import uff.dew.svp.fragmentacaoVirtualSimples.SubQuery;
@@ -12,9 +14,15 @@ import uff.dew.svp.fragmentacaoVirtualSimples.SubQuery;
 public class ExecutionContext {
     
     private String context;
+    private Query queryObj;
+    private SubQuery subQueryObj;
     
-    public ExecutionContext(String fragment) {
-        context = fragment;
+    public ExecutionContext(String fragment) throws IOException {
+        StringReader strReader = new StringReader(fragment);
+        populate(strReader);
+    }
+
+    public ExecutionContext() {
     }
     
     public void save(OutputStream out) throws IOException {
@@ -22,17 +30,24 @@ public class ExecutionContext {
     }
 
     public static ExecutionContext restoreFromStream(InputStream in) throws IOException {
+
+        ExecutionContext ec = new ExecutionContext();
+        ec.populate(new InputStreamReader(in));
+        return ec;
+    }
+    
+    private void populate(Reader in) throws IOException {
         String query = "";
-        StringBuilder context = new StringBuilder();
-        Query q = Query.getUniqueInstance(true);
-        SubQuery sbq = SubQuery.getUniqueInstance(true);
+        StringBuilder sb = new StringBuilder();
         
-        InputStreamReader reader = new InputStreamReader(in);
-        BufferedReader buff = new BufferedReader(reader);
+        queryObj = new Query();
+        subQueryObj = new SubQuery();
+        
+        BufferedReader buff = new BufferedReader(in);
         
         String line;
         while((line = buff.readLine()) != null){    
-            context.append(line);
+            sb.append(line);
             if (!line.toUpperCase().contains("<ORDERBY>") && !line.toUpperCase().contains("<ORDERBYTYPE>") 
                     && !line.toUpperCase().contains("<AGRFUNC>")) {                         
                 query = query + " " + line;
@@ -41,12 +56,12 @@ public class ExecutionContext {
                 // obter as cláusulas do orderby e de funçoes de agregaçao
                 if (line.toUpperCase().contains("<ORDERBY>")){
                     String orderByClause = line.substring(line.indexOf("<ORDERBY>")+"<ORDERBY>".length(), line.indexOf("</ORDERBY>"));
-                    q.setOrderBy(orderByClause);
+                    queryObj.setOrderBy(orderByClause);
                 }
                 
                 if (line.toUpperCase().contains("<ORDERBYTYPE>")){
                     String orderByType= line.substring(line.indexOf("<ORDERBYTYPE>")+"<ORDERBYTYPE>".length(), line.indexOf("</ORDERBYTYPE>"));                         
-                    q.setOrderByType(orderByType);
+                    queryObj.setOrderByType(orderByType);
                 }
                 
                 if (line.toUpperCase().contains("<AGRFUNC>")){ // soma 1 para excluir a tralha contida apos a tag <AGRFUNC>
@@ -67,7 +82,7 @@ public class ExecutionContext {
                                 
                                 if (hashParts!=null) {
                     
-                                    q.setAggregateFunc(hashParts[0], hashParts[1]); // o par CHAVE, VALOR
+                                    queryObj.setAggregateFunc(hashParts[0], hashParts[1]); // o par CHAVE, VALOR
                                 }
                             }
                             
@@ -77,11 +92,27 @@ public class ExecutionContext {
             }
         }
         buff.close();
-        reader.close();
         
-        sbq.setConstructorElement(SubQuery.getConstructorElement(query));
-        sbq.setElementAfterConstructor(SubQuery.getElementAfterConstructor(query));
+        subQueryObj.setConstructorElement(SubQuery.getConstructorElement(query));
+        subQueryObj.setElementAfterConstructor(SubQuery.getElementAfterConstructor(query));
+        queryObj.setInputQuery(query);
         
-        return new ExecutionContext(context.toString());
+        context = sb.toString();
+    }
+    
+    public Query getQueryObj() {
+        return queryObj;
+    }
+    
+    public void setQueryObj(Query query) {
+        this.queryObj = query;
+    }
+    
+    public SubQuery getSubQueryObj() {
+        return subQueryObj;
+    }
+    
+    public void setSubQueryObj(SubQuery sbq) {
+        this.subQueryObj = sbq;
     }
 }

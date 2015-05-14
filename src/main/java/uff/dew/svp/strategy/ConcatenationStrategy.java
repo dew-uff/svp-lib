@@ -12,10 +12,12 @@ public class ConcatenationStrategy implements CompositionStrategy {
     
     private OutputStream output;
     private boolean headerWritten;
+    private SubQuery subQueryObj;
     
-    public ConcatenationStrategy(OutputStream output) {
+    public ConcatenationStrategy(OutputStream output, SubQuery sbq) {
         this.output = output;
         this.headerWritten = false;
+        this.subQueryObj = sbq;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class ConcatenationStrategy implements CompositionStrategy {
         
         BufferedReader br = new BufferedReader(new InputStreamReader(partial));
 
-        SubQuery sq = SubQuery.getUniqueInstance(true);
+        SubQuery sq = subQueryObj;
         String constructorBegin = sq.getConstructorElement();
         String constructorEnd =  sq.getConstructorElement().replace("<", "</");
         

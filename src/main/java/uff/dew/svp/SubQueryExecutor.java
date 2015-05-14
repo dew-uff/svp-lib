@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
 
-import uff.dew.svp.catalog.Catalog;
+import uff.dew.svp.db.Database;
 import uff.dew.svp.db.DatabaseException;
 import uff.dew.svp.db.DatabaseFactory;
-import uff.dew.svp.fragmentacaoVirtualSimples.DecomposeQuery;
 import uff.dew.svp.fragmentacaoVirtualSimples.Query;
-import uff.dew.svp.fragmentacaoVirtualSimples.SimpleVirtualPartitioning;
 import uff.dew.svp.fragmentacaoVirtualSimples.SubQuery;
 
 /**
@@ -22,8 +20,11 @@ import uff.dew.svp.fragmentacaoVirtualSimples.SubQuery;
  */
 public class SubQueryExecutor {
     
+    private Query queryObj;
+    private SubQuery subQueryObj;
     private String subQuery;
     private ExecutionContext context;
+    private Database database;
     
     /**
      * Creates a Executor object using the fragment originated in SVP technique
@@ -32,7 +33,10 @@ public class SubQueryExecutor {
      * @throws Exception
      */
     public SubQueryExecutor(String fragment) throws SubQueryExecutionException {
-        cleanSingletons();
+
+        queryObj = new Query();
+        subQueryObj = new SubQuery();
+        
         try {
             subQuery = processFragment(fragment);
             if (subQuery.indexOf("order by") != -1) {
@@ -45,14 +49,6 @@ public class SubQueryExecutor {
         catch (IOException e) {
             throw new SubQueryExecutionException(e);
         }
-    }
-    
-    private void cleanSingletons() {
-        // need to do this to get rid of garbage from previous execution
-        Query.getUniqueInstance(false);
-        SimpleVirtualPartitioning.getUniqueInstance(false);
-        SubQuery.getUniqueInstance(false);
-        DecomposeQuery.getUniqueInstance(false);        
     }
 
     /**
@@ -68,9 +64,9 @@ public class SubQueryExecutor {
      */
     public void setDatabaseInfo(String hostname, int port, String username, String password,
             String databaseName, String type) throws DatabaseException {
-        DatabaseFactory.produceSingletonDatabaseObject(hostname,port,username,
+        database = DatabaseFactory.getDatabase(hostname,port,username,
                 password,databaseName,type);
-        Catalog.get().setDatabaseObject(DatabaseFactory.getSingletonDatabaseObject());
+//        Catalog.get().setDatabaseObject(database);
     }
     
     /**
@@ -81,7 +77,7 @@ public class SubQueryExecutor {
      */
     public boolean executeQuery(OutputStream os) throws SubQueryExecutionException {
         
-        return SubQuery.executeSubQuery(subQuery, os);
+        return SubQuery.executeSubQuery(subQuery, queryObj, subQueryObj, database, os);
     }
     
     /**
@@ -94,12 +90,12 @@ public class SubQueryExecutor {
     
     private String processFragment(String fragment) throws IOException {
 
-        Query q = Query.getUniqueInstance(true);
-        SubQuery sbq = SubQuery.getUniqueInstance(true);
+        Query q = queryObj;
+        SubQuery sbq = subQueryObj;
         
         StringReader sr = new StringReader(fragment);
         BufferedReader buff = new BufferedReader(sr);
-
+        
         String line;
         String subquery = "";
         while((line = buff.readLine()) != null){    

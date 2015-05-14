@@ -1,5 +1,6 @@
 package uff.dew.svp;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,11 @@ final public class Partitioner
             throw new PartitioningException("queries should not be null!");
         }
         
-        context = new ExecutionContext(fragments.get(0));
+        try {
+            context = new ExecutionContext(fragments.get(0));
+        } catch (IOException e) {
+            throw new PartitioningException("queries should not be null!");
+        }
         
         return fragments;
     }

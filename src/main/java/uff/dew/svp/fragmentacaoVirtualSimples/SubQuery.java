@@ -109,14 +109,11 @@ public class SubQuery {
 	}
 	
 	/* Metodo para execucao das sub-consultas geradas na fragmentacao virtual simples */
-	public static boolean executeSubQuery(String xquery, OutputStream out) throws SubQueryExecutionException {
+	public static boolean executeSubQuery(String xquery, Query q, SubQuery sbq, Database db, OutputStream out) throws SubQueryExecutionException {
 	    LOG.debug("executeSubQuery() xquery: " + xquery);
-
-	    Query q = Query.getUniqueInstance(true);
 
 	    boolean hasResults = false;
 	    
-        Database db = DatabaseFactory.getSingletonDatabaseObject();
         XQResultSequence rs = null;
         try {
             // get the query inside the constructor element
@@ -158,7 +155,7 @@ public class SubQuery {
                 out.write("\r\n".getBytes());
 
                 if (!q.isOrderByClause()) { // se a consulta original nao possui order by adicione o elemento idOrdem
-                    String partialOrderElement = PARTIAL_IDORDEM_BEGIN_ELEMENT + getIntervalBeginning(xquery) + PARTIAL_IDORDEM_END_ELEMENT;
+                    String partialOrderElement = PARTIAL_IDORDEM_BEGIN_ELEMENT + getIntervalBeginning(xquery,sbq) + PARTIAL_IDORDEM_END_ELEMENT;
                     out.write(partialOrderElement.getBytes());
                 }
 
@@ -391,14 +388,11 @@ public class SubQuery {
 	 * @param constructorElement
 	 * @return
 	 */
-	public static void getElementsAroundOrderByElement(String xquery, String elementAfterConstructor) {
+	public static void getElementsAroundOrderByElement(String xquery, String elementAfterConstructor, Query q, SubQuery sbq) {
 		
 		String elementAroundOrderBy = "";		
 		String completePath = "";
 		
-		Query q = Query.getUniqueInstance(true);
-		SubQuery sbq = SubQuery.getUniqueInstance(true);
-			
 		if (!q.getOrderBy().trim().equals("")) { // se a consulta original possui order by, acrescentar na consulta final o order by original.
 			
 			String originalClause = q.getOrderBy().trim();
@@ -466,7 +460,7 @@ public class SubQuery {
 		}
 	}
 	
-	public static String getIntervalBeginning(String xquery){
+	public static String getIntervalBeginning(String xquery, SubQuery sbq){
 		
 		int posPositionFunction = xquery.indexOf("[position() ");
 		String intervalBeginning = "";
@@ -480,7 +474,6 @@ public class SubQuery {
 		}
 		else { // nao houve fragmentacao
 			
-			SubQuery sbq = SubQuery.getUniqueInstance(true);
 			int docId = Integer.parseInt(sbq.getDocIdentifier());
 			docId++;
 			intervalBeginning = Integer.toString(docId);
