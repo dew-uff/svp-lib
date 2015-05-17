@@ -47,7 +47,7 @@ public class ExecutionContext {
         
         String line;
         while((line = buff.readLine()) != null){    
-            sb.append(line);
+            sb.append(line + "\n");
             if (!line.toUpperCase().contains("<ORDERBY>") && !line.toUpperCase().contains("<ORDERBYTYPE>") 
                     && !line.toUpperCase().contains("<AGRFUNC>")) {                         
                 query = query + " " + line;
