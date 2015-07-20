@@ -84,7 +84,8 @@ public class BaseXDatabase extends XQJBaseDatabase {
             result = Integer.parseInt(baseExecuteQueryAsString(query));            
         }
         catch (XQException e) {
-            e.printStackTrace();
+            LOG.warn("error getting cardinality in dbmode: " + query);
+            LOG.warn("error msg: " + e.getMessage());
         }
         
         return result;
@@ -167,13 +168,17 @@ public class BaseXDatabase extends XQJBaseDatabase {
     public String[] getParentElement(String elementName, String collectionName,
             String docName) {
         
-        if (docName == null) {
-            return null;
+        String resource = null;
+        if (docName == null && collectionName != null && collectionName.length() > 0) {
+            resource = "collection('" + collectionName + "')";
+        }
+        else if (docName != null) {
+            resource = "doc('";
+            resource += (collectionName != null && collectionName.length() > 0)?collectionName + "/"+docName : getDatabaseName() + "/" + docName;
+            resource += "')";
         }
         
-        String resource = (collectionName != null && collectionName.length() > 0)?collectionName + "/"+docName : getDatabaseName() + "/" + docName;
-        
-        String query = "distinct-values(doc('" + resource + "')//" + elementName + "/../name()[1])";
+        String query = "distinct-values(" + resource + "//" + elementName + "/../name()[1])";
 
         String[] result = null;
         

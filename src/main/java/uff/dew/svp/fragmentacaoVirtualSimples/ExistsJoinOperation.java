@@ -130,6 +130,9 @@ public class ExistsJoinOperation {
 		    if (cardinality == 0) { // caminho da variavel do primeiro join  incompleto
 				cardinality = analyzeAncestral(collectionName, docName, varJoin1, q.getPathVariable("$"+varJoin1));	
 			}
+		    else {
+		        q.setPartitioningPath(pathJoin1);
+		    }
 			
 			if (cardinality > 1) { // s pode fragmentar se houver relao 1:N.				
 				
@@ -147,6 +150,9 @@ public class ExistsJoinOperation {
 			if (cardinality2 == 0) { // caminho da variavel do primeiro join  incompleto
 							
 				cardinality2 = analyzeAncestral(collectionName, docName, varJoin2, q.getPathVariable("$"+varJoin2));			
+			} 
+			else {
+			    q.setPartitioningPath(pathJoin2);
 			}
 			
 			if (cardinality2 > 1) { // s pode fragmentar se houver relao 1:N.
