@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -244,40 +246,31 @@ public class BaseXDatabase extends XQJBaseDatabase {
 
         StringBuffer processedQuery = new StringBuffer();
         
-        while (query.length() > 0) {
-            int idx = query.indexOf("doc(");
-            if (idx != -1) {
-                // everything until 'doc('' is ok.
-                processedQuery.append(query.substring(0,idx + 5));
-                // remove doc( and the ' or " character after it
-                query = query.substring(idx + 5);
-                // remove ') or "), to get document name
-                int idx2 = query.indexOf(')') - 1;
-                String document = query.substring(0, idx2);
-                // replace 'document.xml' by 'database/document.xml'
-                processedQuery.append(getDatabaseName()+"/"+document);
-                query = query.substring(idx2);
-            } 
-            else  {
-                idx = query.indexOf("document(");
-                if (idx != -1) {
-                    // everything until 'document('' is ok.
-                    processedQuery.append(query.substring(0,idx + 10));
-                    // remove document( and the ' or " character after it
-                    query = query.substring(idx+10);
-                    // remove ') or "), to get document name
-                    int idx2 = query.indexOf(')') - 1;
-                    String document = query.substring(0, idx2);
-                    // replace 'document.xml' by 'database/document.xml'
-                    processedQuery.append(getDatabaseName()+"/"+document);
-                    query = query.substring(idx2);
-                }
-                else {
-                    processedQuery.append(query);
-                    break;
-                }
+        Pattern p = Pattern.compile("doc(?:ument)?\\((.+?)\\)");
+        Matcher m = p.matcher(query);
+        int previousMatchEndIdx = 0;
+        while (m.find()) {
+            processedQuery.append(query.substring(previousMatchEndIdx, m.start()));
+            String docName = null;
+            String collectionName = null;
+            String insideStr = m.group(1);
+            if (insideStr.indexOf(',') != -1) {
+                String[] values = insideStr.split(",");
+                docName = values[0].replace("'","").replace("\"", "").trim();
+                collectionName = values[1].replace("'","").replace("\"", "").trim();
+            } else {
+                docName = insideStr.replace("'","").replace("\"", "").trim();
             }
+            
+            if (collectionName == null) {
+                collectionName = getDatabaseName();
+            }
+            
+            processedQuery.append("doc('"+collectionName+"/"+docName+"')");
+            previousMatchEndIdx = m.end();
         }
+        
+        processedQuery.append(query.substring(previousMatchEndIdx));
         
         return processedQuery.toString();
     }
