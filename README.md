@@ -2,13 +2,13 @@ svp-lib
 ==========
 
 Copyright (c) 2016 Universidade Federal Fluminense (UFF).
-Copyright (c) 2016 Universidade Federal do Rio de Janeirop (UFRJ).
+Copyright (c) 2016 Universidade Federal do Rio de Janeiro (UFRJ).
 
 All rights reserved.
 
 The svp-lib is a Java library that implements the Simple Virtual Partitioning (SVP) algorithm to execute a XQuery over distributed XML databases [1]. It allows a developer to easily employ the SVP technique over many parallel processing frameworks, using different XML Native Database Management Systems.
 
-The current version supports both BaseX and Sedna database systems.
+The current version supports both BaseX and Sedna XML database systems.
 
 Team
 ----
@@ -17,7 +17,7 @@ The original code was written by Carla Rodrigues and was latter enhanced and ada
 
 * Carla Rodrigues (UFRJ)
 * Gabriel Tessarolli (UFF)
-* Luiz Matos (UFF)
+* Luiz Matos (UFF and UFAC)
 * Vanessa Braganholo (UFF)
 * Marta Mattoso (UFRJ)
 
@@ -25,6 +25,8 @@ Publications
 ------------
 
 * [Rodrigues, C., Braganholo, V., Mattoso, M. Virtual Partitioning ad-hoc Queries over Distributed XML Databases. Journal of Information and Data Management (JIDM): 495–510, 2011.] (https://github.com/dew-uff/svp-lib/raw/master/docs/jidm2011.pdf)
+* [Silva, L., Silva Júnior, L., Mattoso, M., Braganholo, V. On the performance of the position () XPath function. Proceedings of the 2013 ACM Symposium on Document Engineering (DOCENG): 229-230, 2013.] (http://dl.acm.org/citation.cfm?id=2494295)
+* [Braganholo, V., Mattoso, M. A Survey on XML Fragmentation. ACM SIGMOD Record: 24–35, 2014.] (http://dl.acm.org/citation.cfm?id=2694434)
 
 Building
 --------
