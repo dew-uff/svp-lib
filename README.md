@@ -25,7 +25,7 @@ Publications
 ------------
 
 * [Rodrigues, C., Braganholo, V., Mattoso, M. Virtual Partitioning ad-hoc Queries over Distributed XML Databases. Journal of Information and Data Management (JIDM): 495–510, 2011.] (https://github.com/dew-uff/svp-lib/raw/master/docs/jidm2011.pdf)
-* [Silva, L., Silva Júnior, L., Mattoso, M., Braganholo, V. On the performance of the position () XPath function. Proceedings of the 2013 ACM Symposium on Document Engineering (DOCENG): 229-230, 2013.] (http://dl.acm.org/citation.cfm?id=2494295)
+* [Silva, L., Silva Júnior, L., Mattoso, M., Braganholo, V. On the performance of the position () XPath function. Proceedings of the 2013 ACM Symposium on Document Engineering (DocEng): 229-230, 2013.] (http://dl.acm.org/citation.cfm?id=2494295)
 * [Braganholo, V., Mattoso, M. A Survey on XML Fragmentation. ACM SIGMOD Record: 24–35, 2014.] (http://dl.acm.org/citation.cfm?id=2694434)
 
 Building
