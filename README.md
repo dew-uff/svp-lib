@@ -59,6 +59,11 @@ svp-lib relies on the following libraries:
 * [XQJ BaseX Library] (http://xqj.net/basex/)
 * [XQJ Sedna Library] (http://xqj.net/sedna/)
 
+Acknowledgements
+----------------
+
+We would like to thank CNPq, CAPES and FAPERJ for partially supporting this work.
+
 License Terms
 -------------
 
